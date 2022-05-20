@@ -1,0 +1,53 @@
+-
+  name: Destroy Web
+  hosts: localhost
+  tasks:
+
+    - name: disable httpd service
+      shell: sudo systemctl disable httpd
+
+    - name: stop httpd service
+      shell: sudo systemctl stop httpd
+
+    - name: remove httpd (apache) and php
+      yum:
+        name:
+          - httpd
+          - php
+          - php-pear
+          - php-mysqlnd
+        state: removed
+      ignore_errors: yes
+      become: yes
+
+    - name: clean source
+      shell: sudo rm -rf /var/www/html
+
+
+-
+  name: Remove Mariadb
+  hosts: localhost
+  vars:
+    mysql_root_password: password
+  tasks:
+
+    - name: remove mariadb database
+      mysql_db:
+        name: ecomdb
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: disabe mariadb service
+      shell: sudo systemctl disable mariadb
+
+    - name: stop mariadb service
+      shell: sudo service mariadb stop
+
+    - name: remove mariadb
+      yum:
+        name:
+          - mariadb-server
+          - python3-PyMySQL
+        state: removed
+      become: yes

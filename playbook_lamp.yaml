@@ -1,0 +1,92 @@
+-
+  name: Install and Setting Mariadb
+  hosts: localhost
+  vars:
+    mysql_root_password: password
+  tasks:
+    - name: install mariadb
+      yum:
+        name:
+          - mariadb-server
+          - python3-PyMySQL
+        state: latest
+      become: yes
+
+    - name: start mariadb service
+      shell: sudo service mariadb start
+
+    - name: enable mariadb service
+      shell: sudo systemctl enable mariadb
+
+    - name: update mysql root password for all root accounts
+      mysql_user:
+        name: root
+        host: "{{ item }}"
+        password: "{{ mysql_root_password }}"
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        check_implicit_admin: yes
+        priv: "*.*:ALL,GRANT"
+      with_items:
+      - "{{ ansible_hostname }}"
+      - 127.0.0.1
+      - ::1
+      - localhost
+
+    - name: create a new database
+      mysql_db: name=ecomdb state=present login_user=root login_password="{{ mysql_root_password }}"
+
+    - name: Create database user with name 'ecomuser' and password 'ecompassword' with all database privileges
+      mysql_user:
+        name: ecomuser
+        password: ecompassword
+        host: localhost
+        priv: '*.*:ALL'
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: add sample data to database
+      copy: src=dump.sql dest=/tmp/dump.sql
+
+    - name: insert sample data into database
+      mysql_db: name=ecomdb state=import target=/tmp/dump.sql login_user=root login_password="{{ mysql_root_password }}"
+
+
+-
+  name: Deploy and Configure Web
+  hosts: localhost
+  tasks:
+    - name: install httpd (apache) and php
+      yum:
+        name:
+          - httpd
+          - php
+          - php-pear
+          - php-mysqlnd
+        state: latest
+      become: yes
+
+    - name: Configure httpd
+      shell: sudo sed -i 's/index.html/index.php/g' /etc/httpd/conf/httpd.conf
+
+    - name: Configure httpd
+      file:
+        path: /var/www/html
+        state: directory
+      become: yes
+
+    - name: start httpd service
+      shell: sudo systemctl start httpd
+
+    - name: enable httpd service
+      shell: sudo systemctl enable httpd
+
+    - name: install git
+      shell: sudo yum install -y git
+
+    - name: clone git
+      shell: sudo git clone https://github.com/kodekloudhub/learning-app-ecommerce.git /var/www/html/
+
+    - name: Update index.php
+      shell: sudo sed -i 's/172.20.1.101/localhost/g' /var/www/html/index.php
