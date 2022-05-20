@@ -1,5 +1,8 @@
 # lamp on centos 8
 
+## install ansible
+sudo yum install ansible -y
+
 ## execute
 ansible-playbook playbook_lamp.yaml
 
