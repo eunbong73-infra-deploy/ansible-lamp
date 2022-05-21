@@ -1,0 +1,2 @@
+linux_target ansible_host=10.0.2.15 ansible_conection=ssh   ansible_user=root  ansible_ssh_pass=Password
+win_target   ansible_host=10.0.2.5  ansible_conection=winrm ansible_user=admin ansible_password=Password

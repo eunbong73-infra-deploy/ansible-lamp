@@ -4,7 +4,7 @@
 sudo yum install ansible -y
 
 ## execute
-ansible-playbook playbook_lamp.yaml
+ansible-playbook -i inventory.txt playbook_lamp.yaml
 
 
 ## reference 1
