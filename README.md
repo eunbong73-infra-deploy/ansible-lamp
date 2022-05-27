@@ -35,8 +35,8 @@ http://localhost
 ## 소스 수정
 - main.py 디렉토리로 이동
 - playbook이 설치된 Directory로 소스 수정 (main.py)
-   ans_base_dir="/home/osboxes/ansible-demos-exercises/"
-   job_base_dir= ans_base_dir + "lamp_handson/"
+   . ans_base_dir="/home/osboxes/ansible-demos-exercises/"
+   . job_base_dir= ans_base_dir + "lamp_handson/"
 
 ## 실행
 - uvicorn main:app --reload
